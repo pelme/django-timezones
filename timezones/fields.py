@@ -99,11 +99,16 @@ class LocalizedDateTimeField(models.DateTimeField):
         """
         Returns field's value prepared for database lookup.
         """
-        ## convert to settings.TIME_ZONE
-        if value.tzinfo is None:
-            value = default_tz.localize(value)
-        else:
-            value = value.astimezone(default_tz)
+
+        # Check for tzinfo-attribute. For certain lookup_types is not a datetime-like object
+        # localizeddatetimefield__isnull=True will result in foo.get_db_prep_lookup('isnull', True)
+        if hasattr(value, 'tzinfo'):
+            ## convert to settings.TIME_ZONE
+            if value.tzinfo is None:
+                value = default_tz.localize(value)
+            else:
+                value = value.astimezone(default_tz)
+
         return super(LocalizedDateTimeField, self).get_db_prep_lookup(lookup_type, value)
 
 
