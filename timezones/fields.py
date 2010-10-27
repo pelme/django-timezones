@@ -67,13 +67,16 @@ class LocalizedDateTimeField(models.DateTimeField):
     or a queryset keyword relation for the model, or a pytz.timezone()
     result.
     """
-    def __init__(self, verbose_name=None, name=None, timezone=None, **kwargs):
+    def __init__(self, verbose_name=None, name=None, timezone=None, save_timezone=True, **kwargs):
         if isinstance(timezone, basestring):
             timezone = smart_str(timezone)
         if timezone in pytz.all_timezones_set:
             self.timezone = pytz.timezone(timezone)
         else:
             self.timezone = timezone
+
+        self.save_timezone = save_timezone
+
         super(LocalizedDateTimeField, self).__init__(verbose_name, name, **kwargs)
     
     def formfield(self, **kwargs):
@@ -93,6 +96,10 @@ class LocalizedDateTimeField(models.DateTimeField):
                 value = default_tz.localize(value)
             else:
                 value = value.astimezone(default_tz)
+
+            if not self.save_timezone:
+                value = value.replace(tzinfo=None)
+
         return super(LocalizedDateTimeField, self).get_db_prep_save(value)
     
     def get_db_prep_lookup(self, lookup_type, value):
