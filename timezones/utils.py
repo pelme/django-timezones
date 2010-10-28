@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.encoding import smart_str
@@ -39,3 +41,16 @@ def validate_timezone_max_length(max_length, zones):
         return x and (len(y) <= max_length)
     if not reduce(reducer, zones, True):
         raise Exception("timezones.fields.TimeZoneField MAX_TIMEZONE_LENGTH is too small")
+
+def get_timezone(timezoneish, default=None):
+    if isinstance(timezoneish, datetime.tzinfo):
+        return timezoneish
+
+    else:
+        try:
+            return pytz.timezone(smart_str(timezoneish))
+        except pytz.UnknownTimeZoneError:
+            if default is None:
+                raise
+
+            return default
