@@ -133,6 +133,9 @@ class LocalizedDateTimeField(models.DateTimeField):
             else:
                 value = value.astimezone(default_tz)
 
+        if not self.save_timezone:
+            value = value.replace(tzinfo=None)
+
         return super(LocalizedDateTimeField, self).get_db_prep_lookup(lookup_type, value)
 
 # This code could almost live in the loop directly
