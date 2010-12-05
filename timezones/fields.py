@@ -104,7 +104,7 @@ class LocalizedDateTimeField(models.DateTimeField):
         # 3. At this point, timezoneish should be a string or a tzinfo-object
         return get_timezone(timezoneish, default_tz)
         
-    def get_db_prep_save(self, value):
+    def get_db_prep_save(self, value, connection=None):
         """
         Returns field's value prepared for saving into a database.
         """
@@ -117,9 +117,9 @@ class LocalizedDateTimeField(models.DateTimeField):
             if not self.save_timezone:
                 value = value.replace(tzinfo=None)
 
-        return super(LocalizedDateTimeField, self).get_db_prep_save(value)
+        return super(LocalizedDateTimeField, self).get_db_prep_save(value, connection=connection)
 
-    def get_db_prep_lookup(self, lookup_type, value):
+    def get_db_prep_lookup(self, lookup_type, value, connection=None, prepared=False):
         """
         Returns field's value prepared for database lookup.
         """
@@ -136,7 +136,7 @@ class LocalizedDateTimeField(models.DateTimeField):
             if not self.save_timezone:
                 value = value.replace(tzinfo=None)
 
-        return super(LocalizedDateTimeField, self).get_db_prep_lookup(lookup_type, value)
+        return super(LocalizedDateTimeField, self).get_db_prep_lookup(lookup_type, value, connection=connection, prepared=prepared)
 
 # This code could almost live in the loop directly
 # The field loop variable will not be persistent in the created closures, and will 
